@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MN Licensing Assistant — Prototype Overview</title>
+  <style>
+    :root {
+      --mn-blue:        #003865;
+      --mn-blue-dark:   #002548;
+      --mn-blue-light:  #e6edf4;
+      --mn-green:       #78BE21;
+      --mn-green-dark:  #5a9118;
+      --mn-green-light: #eef7e0;
+      --surface:        #F8F8F8;
+      --surface-white:  #FFFFFF;
+      --border:         #CCCCCC;
+      --muted:          #6b6b6b;
+      --text:           #1a1a1a;
+      --warning-bg:     #FFF8EE;
+      --warning-border: #f0c98a;
+      --warning-text:   #7a4800;
+      --error-bg:       #fdf0f1;
+      --error-border:   #e8b4b8;
+      --error-text:     #7a1c24;
+      --partial-bg:     #FFF8EE;
+      --partial-border: #f0c98a;
+      --partial-text:   #7a4800;
+      --planned-bg:     #F5F5F5;
+      --planned-text:   #6b6b6b;
+      --oos-bg:         #F0F0F5;
+      --oos-text:       #5a5a72;
+      --oos-border:     #c0bfd8;
+      --radius-card:    8px;
+      --radius-badge:   72px;
+      --shadow:         0 1px 16px 4px #1212121F;
+      --font:           Arial, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    /* ── Skip link ── */
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--mn-green);
+      color: #fff;
+      padding: 8px 16px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+      z-index: 999;
+      border-radius: 0 0 4px 0;
+    }
+    .skip-link:focus { top: 0; }
+
+    /* ── Page Header ── */
+    .page-header {
+      background: var(--mn-blue);
+      color: #fff;
+      padding: 40px 48px 36px;
+    }
+    .page-header .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #7fb3d8;
+      margin-bottom: 8px;
+    }
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+    .page-header h1 span { color: var(--mn-green); }
+    .page-header .subtitle {
+      font-size: 14px;
+      color: #b0cde6;
+      max-width: 720px;
+      line-height: 1.6;
+    }
+    .page-header .meta {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #7fb3d8;
+    }
+
+    /* ── Tab Nav ── */
+    .tab-nav {
+      background: var(--surface-white);
+      border-bottom: 2px solid var(--border);
+      padding: 0 48px;
+      display: flex;
+      gap: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      padding: 16px 20px 14px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--mn-blue); }
+    .tab-btn:focus-visible {
+      outline: 3px solid var(--mn-green);
+      outline-offset: -3px;
+    }
+    .tab-btn.active {
+      color: var(--mn-blue);
+      border-bottom-color: var(--mn-green);
+    }
+    .tab-btn .badge-count {
+      display: inline-block;
+      margin-left: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-badge);
+      font-size: 11px;
+      padding: 1px 8px;
+      color: var(--muted);
+      font-weight: 400;
+      vertical-align: middle;
+    }
+    .tab-btn.active .badge-count {
+      background: var(--mn-blue-light);
+      border-color: #7fb3d8;
+      color: var(--mn-blue);
+    }
+
+    /* ── Main content ── */
+    .content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px 48px 64px;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Prose sections ── */
+    .prose-section {
+      background: var(--surface-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    .prose-section h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--mn-blue);
+      margin-bottom: 10px;
+    }
+    .prose-section h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--mn-blue);
+      margin: 16px 0 6px;
+    }
+    .prose-section p {
+      font-size: 13.5px;
+      color: #333;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    .prose-section p:last-child { margin-bottom: 0; }
+    .prose-section ul, .prose-section ol {
+      margin: 8px 0 10px 20px;
+      font-size: 13.5px;
+      color: #333;
+      line-height: 1.6;
+    }
+    .prose-section li { margin-bottom: 5px; }
+    .prose-section strong { color: var(--mn-blue); }
+
+    /* ── Two-column grid for overview ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 860px) {
+      .two-col { grid-template-columns: 1fr; }
+      .content { padding: 20px 20px 40px; }
+      .page-header { padding: 28px 20px 24px; }
+      .tab-nav { padding: 0 20px; }
+    }
+
+    /* ── Persona intro cards ── */
+    .persona-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .persona-card {
+      background: var(--surface-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      border-top: 4px solid var(--mn-blue);
+    }
+    .persona-card.accent-green { border-top-color: var(--mn-green); }
+    .persona-card h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--mn-blue);
+      margin-bottom: 4px;
+    }
+    .persona-card .persona-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--mn-blue-light);
+      color: var(--mn-blue);
+      border-radius: 4px;
+      padding: 2px 7px;
+      margin-bottom: 8px;
+    }
+    .persona-card.accent-green .persona-tag {
+      background: var(--mn-green-light);
+      color: var(--mn-green-dark);
+    }
+    .persona-card p {
+      font-size: 12.5px;
+      color: #444;
+      line-height: 1.55;
+    }
+
+    /* ── Legend ── */
+    .legend-wrap {
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .legend {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .legend-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      min-width: 110px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #555; }
+
+    /* ── Main JTBD table ── */
+    .jtbd-table-wrap {
+      background: var(--surface-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .jtbd-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    .jtbd-table thead tr {
+      background: var(--mn-blue);
+      color: #fff;
+    }
+    .jtbd-table thead th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .jtbd-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+    .jtbd-table tbody tr:last-child { border-bottom: none; }
+    .jtbd-table tbody tr:hover { background: #f0f5ea; }
+    .jtbd-table td {
+      padding: 14px 16px;
+      vertical-align: top;
+      line-height: 1.55;
+    }
+
+    /* Column widths */
+    .col-id     { width: 52px; color: var(--muted); font-size: 12px; font-weight: 700; padding-top: 16px; }
+    .col-job    { width: 18%; }
+    .col-comp   { width: 17%; }
+    .col-how    { width: 22%; }
+    .col-basis  { width: 10%; }
+    .col-status { width: 11%; }
+    .col-usage  { width: 18%; }
+
+    /* Job text */
+    .job-text { font-size: 13.5px; color: var(--text); }
+    .how-text { font-size: 13px; color: #333; }
+
+    /* Component chips */
+    .comp-list { display: flex; flex-direction: column; gap: 5px; }
+    .comp-screen { font-weight: 700; color: var(--mn-blue); font-size: 13px; }
+    .comp-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+    .comp-chip {
+      display: inline-block;
+      background: var(--mn-blue-light);
+      border: 1px solid #7fb3d8;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 11.5px;
+      color: var(--mn-blue);
+      font-family: 'Courier New', monospace;
+      white-space: nowrap;
+    }
+    .comp-chip.partial {
+      background: var(--partial-bg);
+      border-color: var(--partial-border);
+      color: var(--partial-text);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: var(--radius-badge);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .badge-live {
+      background: var(--mn-green-light);
+      color: var(--mn-green-dark);
+      border: 1px solid #a8d87a;
+    }
+    .badge-partial {
+      background: var(--partial-bg);
+      color: var(--partial-text);
+      border: 1px solid var(--partial-border);
+    }
+    .badge-planned {
+      background: var(--planned-bg);
+      color: var(--planned-text);
+      border: 1px solid var(--border);
+    }
+    .badge-outofscope {
+      background: var(--oos-bg);
+      color: var(--oos-text);
+      border: 1px solid var(--oos-border);
+    }
+    .badge-enhancement {
+      background: var(--mn-blue-light);
+      color: var(--mn-blue);
+      border: 1px solid #7fb3d8;
+    }
+    .badge-hypothesis {
+      background: #F3EEFF;
+      color: #5c3d99;
+      border: 1px solid #c4a8f0;
+    }
+    .badge-note {
+      display: block;
+      font-size: 11px;
+      color: var(--warning-text);
+      margin-top: 5px;
+      font-weight: 400;
+      font-style: italic;
+      line-height: 1.4;
+    }
+    .basis-note {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 5px;
+      font-weight: 400;
+      font-style: italic;
+      line-height: 1.4;
+    }
+
+    /* Usage cell */
+    .usage-text { font-size: 12.5px; color: #333; line-height: 1.55; }
+    .usage-text .route {
+      display: inline-block;
+      background: var(--mn-blue-light);
+      border: 1px solid #7fb3d8;
+      border-radius: 4px;
+      padding: 1px 7px;
+      font-size: 11.5px;
+      color: var(--mn-blue);
+      font-family: 'Courier New', monospace;
+      white-space: nowrap;
+    }
+    .usage-text .clicks {
+      display: block;
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── Architecture diagram ── */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    @media (max-width: 700px) { .arch-grid { grid-template-columns: 1fr; } }
+    .arch-col {
+      background: var(--mn-blue-light);
+      border: 1px solid #7fb3d8;
+      border-radius: 6px;
+      padding: 14px 16px;
+    }
+    .arch-col h4 {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--mn-blue);
+      margin-bottom: 10px;
+    }
+    .arch-col ul {
+      margin-left: 16px;
+      font-size: 12.5px;
+      color: #333;
+      line-height: 1.6;
+    }
+    .arch-col li { margin-bottom: 4px; }
+    .arch-flow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .arch-flow-step {
+      background: var(--mn-blue);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 4px;
+    }
+    .arch-flow-arrow {
+      color: var(--mn-green-dark);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    /* ── Open questions ── */
+    .oq-section {
+      margin-top: 48px;
+      padding-top: 8px;
+      border-top: 2px solid var(--border);
+    }
+    .oq-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--mn-blue);
+      margin-bottom: 6px;
+    }
+    .oq-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .oq-table-wrap {
+      background: var(--surface-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .oq-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    .oq-table thead tr { background: var(--mn-blue); color: #fff; }
+    .oq-table thead th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .oq-table tbody tr { border-bottom: 1px solid var(--border); }
+    .oq-table tbody tr:last-child { border-bottom: none; }
+    .oq-table tbody tr:hover { background: #f0f5ea; }
+    .oq-table td {
+      padding: 14px 16px;
+      vertical-align: top;
+      line-height: 1.55;
+      font-size: 13px;
+      color: #333;
+    }
+    .oq-col-ref    { width: 72px; }
+    .oq-col-q      { width: 32%; }
+    .oq-col-impact { width: 36%; }
+    .oq-col-owner  { width: 14%; }
+    .oq-col-jtbd   { width: 10%; font-size: 12px; color: var(--muted); }
+    .oq-tag {
+      display: inline-block;
+      background: var(--partial-bg);
+      border: 1px solid var(--partial-border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--partial-text);
+      font-family: 'Courier New', monospace;
+      white-space: nowrap;
+    }
+
+    /* ── Roadmap table ── */
+    .roadmap-table-wrap {
+      background: var(--surface-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    .roadmap-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    .roadmap-table thead tr { background: var(--mn-blue); color: #fff; }
+    .roadmap-table thead th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .roadmap-table tbody tr { border-bottom: 1px solid var(--border); }
+    .roadmap-table tbody tr:last-child { border-bottom: none; }
+    .roadmap-table tbody tr:hover { background: #f0f5ea; }
+    .roadmap-table td {
+      padding: 13px 16px;
+      vertical-align: top;
+      font-size: 13px;
+      color: #333;
+      line-height: 1.55;
+    }
+    .roadmap-table td:first-child { font-weight: 700; color: var(--mn-blue); width: 160px; }
+
+    /* ── Section divider heading ── */
+    .section-heading {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--mn-blue);
+      margin: 40px 0 16px;
+      padding-top: 8px;
+      border-top: 2px solid var(--border);
+    }
+    .section-heading:first-child { margin-top: 0; border-top: none; }
+
+    /* ── Callout box ── */
+    .callout {
+      background: var(--mn-blue-light);
+      border-left: 4px solid var(--mn-blue);
+      border-radius: 4px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      font-size: 13.5px;
+      color: #1a1a1a;
+      line-height: 1.6;
+    }
+    .callout.green {
+      background: var(--mn-green-light);
+      border-left-color: var(--mn-green-dark);
+    }
+
+    /* ── Footer ── */
+    .page-footer {
+      background: var(--surface-white);
+      border-top: 1px solid var(--border);
+      padding: 20px 48px;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .page-footer a { color: var(--mn-blue); text-decoration: none; }
+    .page-footer a:hover { text-decoration: underline; }
+
+    /* ── Focus styles ── */
+    a:focus-visible, button:focus-visible {
+      outline: 3px solid var(--mn-green);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- ════════════════════════════════════════
+     PAGE HEADER
+════════════════════════════════════════ -->
+<header class="page-header">
+  <div class="eyebrow">State of Minnesota · Department of Children, Youth, and Families</div>
+  <h1>AI-Enabled Licensing Assistant <span>·</span> Prototype Overview</h1>
+  <p class="subtitle">
+    An executive and stakeholder summary of the Phase 1 prototype — what it is, who it serves,
+    how it is structured, and what decisions are needed to move forward.
+  </p>
+  <div class="meta">Last updated: August 11, 2026 &nbsp;·&nbsp; Phase 1 prototype — <strong style="color:var(--mn-green);">Build complete</strong> &nbsp;·&nbsp; Child care + adult day care licensing &nbsp;·&nbsp; Internal staff pilot</div>
+</header>
+
+<!-- ════════════════════════════════════════
+     TAB NAV
+════════════════════════════════════════ -->
+<nav class="tab-nav" role="tablist" aria-label="Section navigation">
+  <button class="tab-btn active" role="tab" aria-selected="true"  aria-controls="tab-overview"   id="btn-overview"   onclick="showTab('overview')" >Overview</button>
+  <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-personas"   id="btn-personas"   onclick="showTab('personas')" >Personas <span class="badge-count">4</span></button>
+  <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-jtbd"       id="btn-jtbd"       onclick="showTab('jtbd')"     >Jobs to Be Done <span class="badge-count">8</span></button>
+  <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-arch"       id="btn-arch"       onclick="showTab('arch')"     >Architecture</button>
+  <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-testing"    id="btn-testing"    onclick="showTab('testing')"  >Testing Guide <span class="badge-count">6</span></button>
+  <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-roadmap"    id="btn-roadmap"    onclick="showTab('roadmap')"  >Roadmap &amp; Open Questions</button>
+</nav>
+
+<!-- ════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════ -->
+<main class="content" id="main-content">
+
+  <!-- ─────────────────────────────────────
+       TAB: OVERVIEW
+  ───────────────────────────────────────── -->
+  <div id="tab-overview" class="tab-panel active" role="tabpanel" aria-labelledby="btn-overview">
+
+    <h2 class="section-heading">Executive Summary</h2>
+
+    <div class="two-col">
+      <div class="prose-section">
+        <h2>What this prototype is</h2>
+        <p>
+          This is a <strong>24-hour rapid prototype</strong> of an AI-enabled intake and triage assistant for
+          Minnesota state licensing staff. It covers <strong>child care</strong> and <strong>adult day care</strong>
+          licensing — two license types selected to prove the concept before scaling.
+        </p>
+        <p>
+          All data in the prototype is mocked. There are no real AI calls, no authentication, and no live
+          integrations. The prototype exists to <strong>demonstrate the end-to-end workflow</strong> for internal
+          staff and to surface design and product decisions before committing to a production build.
+        </p>
+        <p>
+          The prototype is built in <strong>React + Vite + TypeScript</strong> and is deployable to Vercel
+          for review. It is designed to be portable — components can later be re-implemented in Salesforce
+          Lightning (SLDS 2) as the production platform.
+        </p>
+      </div>
+      <div class="prose-section">
+        <h2>Why it exists</h2>
+        <p>
+          Providers today navigate <strong>fragmented, duplicative licensing processes</strong> that vary by
+          county and tribe. Staff spend significant time on manual intake, triage, and data reconciliation.
+          Anticipated legislation will consolidate these processes, and this project establishes the
+          <strong>AI-enabled front door</strong> that makes that consolidation possible.
+        </p>
+        <p>
+          Phase 1 focuses on <strong>internal staff only</strong>. Licensing Intake Specialists,
+          Provider Enrollment Specialists, and Program Managers are the primary users. A future phase will
+          extend the assistant to providers directly.
+        </p>
+        <p>
+          The prototype answers the question: <em>"Can an AI assistant meaningfully reduce triage time and
+          improve data quality for MN licensing staff?"</em>
+        </p>
+      </div>
+    </div>
+
+    <div class="callout green">
+      <strong>Definition of done for Phase 1:</strong> A staff user can enter intake data, run the assistant,
+      see a suggested license type + routing with explanation, accept or override the suggestion, view
+      completeness checks with missing-item warnings, detect potential duplicate providers, ask a natural
+      language question in a chat panel, and view a full interaction log — all in a single session.
+    </div>
+
+    <h2 class="section-heading">Prototype Goals &amp; Success Criteria</h2>
+
+    <div class="two-col">
+      <div class="prose-section">
+        <h2>Core goals</h2>
+        <ol>
+          <li><strong>Create a unified experience.</strong> Reduce fragmentation across licensing, certification, and subsidy processes.</li>
+          <li><strong>Accessible, usable information.</strong> Clear, consistent guidance for staff, managers, and leadership.</li>
+          <li><strong>Eliminate duplication of work.</strong> Streamline manual intake and triage tasks for licensing staff.</li>
+          <li><strong>Centralize intake.</strong> Establish a common front door for provider-related licensing requests.</li>
+          <li><strong>Improve data integrity.</strong> Flag inconsistencies and duplicates at intake time, before they reach downstream systems.</li>
+        </ol>
+      </div>
+      <div class="prose-section">
+        <h2>Prototype success criteria</h2>
+        <ul>
+          <li>Staff can classify and route an intake in fewer steps than today's manual process.</li>
+          <li>Completeness checks surface missing fields and documents without staff needing to memorize requirements.</li>
+          <li>The duplicate-detection warning reduces misrouted or re-keyed cases.</li>
+          <li>Staff can get a plain-language answer to a policy question from the chat panel without leaving the tool.</li>
+          <li>Every assistant suggestion is logged — accept or override — for accountability and future model training.</li>
+          <li>The UI meets WCAG 2.1 AA contrast and keyboard navigation standards.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 class="section-heading">Strategic Alignment</h2>
+
+    <div class="prose-section">
+      <h2>How this fits the broader initiative</h2>
+      <p>
+        This prototype is the first step in a multi-phase program to deliver a <strong>unified provider
+        experience</strong> across licensing, certification, and subsidy. It is designed to sit on top of
+        existing integration layers — <strong>Apigee and custom APIs</strong> — rather than replace them.
+      </p>
+      <p>
+        The prototype is explicitly built for <strong>portability</strong>. Business logic lives in
+        mock rule files (<code>mockRules.ts</code>) that can be replaced with live API calls. UI components
+        are designed to map 1:1 to Salesforce Lightning Web Components when the production platform is ready.
+        No county or tribal process rules are hardcoded in a way that prevents future policy updates.
+      </p>
+      <h3>Anticipated legislation alignment</h3>
+      <p>
+        Upcoming legislation aims to consolidate licensing processes across counties and tribes. The assistant
+        is designed to be <strong>policy-aware and updatable</strong> — rules live in a single configuration
+        file, not scattered through the UI. This makes the tool adaptable to legislative changes without a
+        full rebuild.
+      </p>
+      <h3>Provider trust considerations</h3>
+      <p>
+        The assistant is <strong>assistive only — it never decides</strong>. Every suggestion includes an
+        explanation ("why"). Staff can accept or override any recommendation. This design principle is
+        essential for building trust with providers and staff who may be skeptical of AI-driven tools.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- ─────────────────────────────────────
+       TAB: PERSONAS
+  ───────────────────────────────────────── -->
+  <div id="tab-personas" class="tab-panel" role="tabpanel" aria-labelledby="btn-personas">
+
+    <h2 class="section-heading">Primary Personas</h2>
+
+    <div class="callout">
+      <strong>Phase 1 serves internal staff only (personas 2–4).</strong> The provider-facing experience
+      (persona 1) is defined now so design decisions are informed by the full picture, but it will be
+      surfaced in a later phase.
+    </div>
+
+    <div class="persona-grid">
+
+      <div class="persona-card">
+        <span class="persona-tag">External · Phase 2</span>
+        <h3>Licensed Provider / Applicant</h3>
+        <p>
+          Child care centers, home-based providers, and other licensed organizations who must obtain and
+          maintain licenses. Today their experience is fragmented, duplicative, and highly dependent on
+          knowing "who to call." They struggle to understand which process applies, what documents are
+          required, and where they are in the process.
+        </p>
+      </div>
+
+      <div class="persona-card accent-green">
+        <span class="persona-tag">Internal · Phase 1</span>
+        <h3>Licensing Intake Specialist</h3>
+        <p>
+          Front-line staff who receive and review incoming applications via portals, email, and paper.
+          They classify requests, check completeness, and route items to the appropriate team. They face
+          high volume, inconsistent submissions, and complex rules that vary by county and tribe — leading
+          to misrouted cases, rework, and delays.
+        </p>
+        <p><strong>Primary user of the intake form and assistant panel.</strong></p>
+      </div>
+
+      <div class="persona-card accent-green">
+        <span class="persona-tag">Internal · Phase 1</span>
+        <h3>Provider Enrollment / Credentialing Specialist</h3>
+        <p>
+          Staff responsible for creating and maintaining provider records across licensing, certification,
+          and subsidy programs. They reconcile information from multiple systems and manual sources.
+          Their work is hampered by circular data flows, lack of a clear source of truth, and repeated
+          manual data entry.
+        </p>
+        <p><strong>Primary user of completeness checks and duplicate detection.</strong></p>
+      </div>
+
+      <div class="persona-card accent-green">
+        <span class="persona-tag">Internal · Phase 1</span>
+        <h3>Program Manager</h3>
+        <p>
+          Leaders who oversee licensing and subsidy program operations across regions or programs.
+          Accountable for performance, compliance, and readiness for anticipated legislative changes.
+          They need clear visibility into workload, bottlenecks, and data quality — but today must
+          piece together information from disparate systems and reports.
+        </p>
+        <p><strong>Primary consumer of the interaction log and oversight dashboard.</strong></p>
+      </div>
+
+    </div>
+
+    <div class="prose-section">
+      <h2>How the prototype serves each internal role</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:13.5px;">
+        <thead>
+          <tr style="background:var(--mn-blue);color:#fff;">
+            <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Persona</th>
+            <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Primary pain today</th>
+            <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">How the prototype helps</th>
+            <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Key feature</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:12px 14px;font-weight:700;color:var(--mn-blue);">Intake Specialist</td>
+            <td style="padding:12px 14px;">Manually decides license type + routing for every submission; rules vary by county</td>
+            <td style="padding:12px 14px;">AI-assisted classification suggests license type and routing with an explanation; staff can override</td>
+            <td style="padding:12px 14px;"><span class="comp-chip">AssistantPanel</span></td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:12px 14px;font-weight:700;color:var(--mn-blue);">Enrollment Specialist</td>
+            <td style="padding:12px 14px;">Chases missing documents; discovers duplicates late in the process</td>
+            <td style="padding:12px 14px;">Real-time completeness checklist + potential duplicate warning at intake time</td>
+            <td style="padding:12px 14px;"><span class="comp-chip">CompletenessPanel</span></td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:12px 14px;font-weight:700;color:var(--mn-blue);">Program Manager</td>
+            <td style="padding:12px 14px;">No audit trail of AI suggestions; can't distinguish accepted from overridden recommendations</td>
+            <td style="padding:12px 14px;">Interaction log records every assistant suggestion, staff response, and timestamp</td>
+            <td style="padding:12px 14px;"><span class="comp-chip">LogPanel</span></td>
+          </tr>
+          <tr>
+            <td style="padding:12px 14px;font-weight:700;color:var(--mn-blue);">All internal staff</td>
+            <td style="padding:12px 14px;">Must look up policy answers in lengthy manuals or call the policy unit</td>
+            <td style="padding:12px 14px;">Chat panel answers plain-language policy questions with source references</td>
+            <td style="padding:12px 14px;"><span class="comp-chip">StaffChatPanel</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ─────────────────────────────────────
+       TAB: JTBD
+  ───────────────────────────────────────── -->
+  <div id="tab-jtbd" class="tab-panel" role="tabpanel" aria-labelledby="btn-jtbd">
+
+    <h2 class="section-heading">Jobs to Be Done · Prototype Map</h2>
+
+    <!-- Legend -->
+    <div class="legend-wrap">
+      <div class="legend">
+        <span class="legend-label">Prototype Status</span>
+        <span class="legend-item"><span class="badge badge-live">Live in Prototype</span> Built and accessible in the prototype</span>
+        <span class="legend-item"><span class="badge badge-partial">Partially Implemented</span> Component exists; full integration deferred</span>
+        <span class="legend-item"><span class="badge badge-planned">Planned</span> Not yet built — in scope for Phase 1 completion</span>
+        <span class="legend-item"><span class="badge badge-outofscope">Out of Scope</span> Deliberately deferred to a future phase</span>
+      </div>
+      <div class="legend">
+        <span class="legend-label">Design Basis</span>
+        <span class="legend-item"><span class="badge badge-enhancement">Enhancement</span> Improves a capability that exists today (manual or in another tool)</span>
+        <span class="legend-item"><span class="badge badge-hypothesis">Research Hypothesis</span> Net-new concept from discovery — utility to be validated with users</span>
+      </div>
+    </div>
+
+    <div class="jtbd-table-wrap">
+      <table class="jtbd-table">
+        <thead>
+          <tr>
+            <th class="col-id">#</th>
+            <th class="col-job">Job to Be Done</th>
+            <th class="col-comp">Screen / Component</th>
+            <th class="col-how">How it Supports the Job</th>
+            <th class="col-basis">Design Basis</th>
+            <th class="col-status">Prototype Status</th>
+            <th class="col-usage">Usage</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td class="col-id">J-1</td>
+            <td class="col-job"><div class="job-text">When reviewing a new provider application, I want to enter intake data and let the assistant suggest the correct license type, so that I spend less time manually interpreting program rules.</div></td>
+            <td class="col-comp">
+              <div class="comp-list">
+                <div class="comp-screen">Intake Form</div>
+                <div class="comp-chips">
+                  <span class="comp-chip">IntakeForm</span>
+                  <span class="comp-chip">AssistantPanel</span>
+                  <span class="comp-chip">mockRules.ts</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-how"><span class="how-text">Staff enter provider name, address, county, application type, and a program description. Clicking "Run Assistant" triggers keyword-based heuristics in mockRules.ts that return a suggested license type (child care or adult day care) with an explanation of why that type was chosen. Staff can accept or override the suggestion.</span></td>
+            <td class="col-basis"><span class="badge badge-enhancement">Enhancement</span><span class="basis-note">Replaces manual rule lookup; same decision, fewer steps</span></td>
+            <td class="col-status"><span class="badge badge-live">Live in Prototype</span></td>
+            <td class="col-usage"><div class="usage-text">Single screen. Fill form → click "Run Assistant."<span class="clicks">1 action from form entry</span></div></td>
+          </tr>
+
+          <tr>
+            <td class="col-id">J-2</td>
+            <td class="col-job"><div class="job-text">When classifying an intake, I want to see suggested routing (program + county) and understand why the routing was chosen, so that I can confidently send it to the right team without back-and-forth.</div></td>
+            <td class="col-comp">
+              <div class="comp-list">
+                <div class="comp-screen">Assistant Panel</div>
+                <div class="comp-chips">
+                  <span class="comp-chip">AssistantPanel</span>
+                  <span class="comp-chip">mockRules.ts</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-how"><span class="how-text">After license-type classification, the assistant surfaces a routing suggestion: program name (Child Care Licensing or Adult Day Care Licensing) and county/region, with a plain-language explanation. Staff can accept the routing or override it using a dropdown. Accepted or overridden routing is logged to the interaction log.</span></td>
+            <td class="col-basis"><span class="badge badge-enhancement">Enhancement</span><span class="basis-note">Routing rules that today live in staff memory or policy docs are surfaced inline</span></td>
+            <td class="col-status"><span class="badge badge-live">Live in Prototype</span></td>
+            <td class="col-usage"><div class="usage-text">Displayed in <span class="route">AssistantPanel</span> after "Run Assistant."<span class="clicks">Accept or override inline</span></div></td>
+          </tr>
+
+          <tr>
+            <td class="col-id">J-3</td>
+            <td class="col-job"><div class="job-text">When preparing an application for review, I want to see which required fields and documents are missing, so that I can request them before the application reaches the next stage and avoid costly rework.</div></td>
+            <td class="col-comp">
+              <div class="comp-list">
+                <div class="comp-screen">Completeness Panel</div>
+                <div class="comp-chips">
+                  <span class="comp-chip">CompletenessPanel</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-how"><span class="how-text">After the assistant confirms a license type, the Completeness Panel evaluates the intake against a checklist of required fields and required documents (background study form, floor plan, proof of insurance — varies by license type). Missing items are flagged with a warning and a suggested next action (e.g., "Request background study form from provider").</span></td>
+            <td class="col-basis"><span class="badge badge-enhancement">Enhancement</span><span class="basis-note">Completeness checks exist today but are done manually from memory or printed checklists</span></td>
+            <td class="col-status"><span class="badge badge-live">Live in Prototype</span></td>
+            <td class="col-usage"><div class="usage-text">Rendered in right column after license type is confirmed.<span class="clicks">0 additional clicks</span></div></td>
+          </tr>
+
+          <tr>
+            <td class="col-id">J-4</td>
+            <td class="col-job"><div class="job-text">When entering a provider's name and address, I want the system to flag potential duplicates against existing records, so that I don't create a second record for a provider who is already in the system.</div></td>
+            <td class="col-comp">
+              <div class="comp-list">
+                <div class="comp-screen">Completeness Panel</div>
+                <div class="comp-chips">
+                  <span class="comp-chip">CompletenessPanel</span>
+                  <span class="comp-chip">mockIntakes.ts</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-how"><span class="how-text">The CompletenessPanel compares the entered provider name and address against a list of existing providers in mockIntakes.ts. If a match is found, a prominent warning is displayed: "This may be a duplicate of [Provider Name] at [Address] ([County])." Staff can then investigate before proceeding.</span></td>
+            <td class="col-basis"><span class="badge badge-hypothesis">Research Hypothesis</span><span class="basis-note">Duplicate detection at intake is new; today duplicates are discovered late — sometimes post-enrollment</span></td>
+            <td class="col-status"><span class="badge badge-live">Live in Prototype</span></td>
+            <td class="col-usage"><div class="usage-text">Shown inline in <span class="route">CompletenessPanel</span> when name/address matches mock data.<span class="clicks">0 additional clicks</span></div></td>
+          </tr>
+
+          <tr>
+            <td class="col-id">J-5</td>
+            <td class="col-job"><div class="job-text">When I have a policy question during intake, I want to ask it in plain language and get an answer with a source reference, so that I don't have to leave the tool and search through lengthy policy manuals.</div></td>
+            <td class="col-comp">
+              <div class="comp-list">
+                <div class="comp-screen">Staff Chat Panel</div>
+                <div class="comp-chips">
+                  <span class="comp-chip">StaffChatPanel</span>
+                  <span class="comp-chip">mockCannedResponses.ts</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-how"><span class="how-text">The StaffChatPanel provides a text input where staff type a natural language question. On submit, the system keyword-matches to a library of canned responses and returns an answer with a source reference (e.g., "Child Care Licensing Policy Manual, Section 3.2"). Questions that match legal/eligibility terms return a safe disclaimer. Questions with no match return a fallback directing staff to the policy unit.</span></td>
+            <td class="col-basis"><span class="badge badge-enhancement">Enhancement</span><span class="basis-note">Replaces email/phone calls to the policy unit for common questions</span></td>
+            <td class="col-status"><span class="badge badge-live">Live in Prototype</span></td>
+            <td class="col-usage"><div class="usage-text">Type in chat input → press Enter or click Send.<span class="clicks">Available at all times in right column</span></div></td>
+          </tr>
+
+          <tr>
+            <td class="col-id">J-6</td>
+            <td class="col-job"><div class="job-text">When I don't know what to ask, I want to see suggested questions so that I can discover capabilities I didn't know the assistant had.</div></td>
+            <td class="col-comp">
+              <div class="comp-list">
+                <div class="comp-screen">Staff Chat Panel</div>
+                <div class="comp-chips">
+                  <span class="comp-chip">StaffChatPanel</span>
+                  <span class="comp-chip">mockCannedResponses.ts</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-how"><span class="how-text">Above the chat input, 3–4 suggested question chips are displayed, drawn from the canned response library's representative questions (e.g., "What are the requirements for a new family child care license?"). Clicking a chip populates the input and submits it immediately — no typing required.</span></td>
+            <td class="col-basis"><span class="badge badge-hypothesis">Research Hypothesis</span><span class="basis-note">Discoverability pattern; new staff especially benefit from knowing what the assistant can answer</span></td>
+            <td class="col-status"><span class="badge badge-live">Live in Prototype</span></td>
+            <td class="col-usage"><div class="usage-text">Chips visible above chat input on load.<span class="clicks">1 click to use a suggested question</span></div></td>
+          </tr>
+
+          <tr>
+            <td class="col-id">J-7</td>
+            <td class="col-job"><div class="job-text">When reviewing the assistant's behavior, I want to see a log of every suggestion it made and whether staff accepted or overridden it, so that I can verify quality and build confidence in the system over time.</div></td>
+            <td class="col-comp">
+              <div class="comp-list">
+                <div class="comp-screen">Log Panel</div>
+                <div class="comp-chips">
+                  <span class="comp-chip">LogPanel</span>
+                  <span class="comp-chip">App.tsx</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-how"><span class="how-text">The LogPanel displays a timestamped table of all assistant interactions in the current session: classification suggestions, routing suggestions, and chat exchanges. Each entry records the type, what the staff entered, what the assistant suggested, and whether it was accepted or overridden. Chat entries record the question and the response ID.</span></td>
+            <td class="col-basis"><span class="badge badge-hypothesis">Research Hypothesis</span><span class="basis-note">No audit trail for AI suggestions exists today; this is a prerequisite for trust and compliance</span></td>
+            <td class="col-status"><span class="badge badge-live">Live in Prototype</span></td>
+            <td class="col-usage"><div class="usage-text">Always visible at the bottom of the right column.<span class="clicks">Populated automatically; no user action required</span></div></td>
+          </tr>
+
+          <tr>
+            <td class="col-id">J-8</td>
+            <td class="col-job"><div class="job-text">When the prototype is validated and ready for production, I want the assistant logic and UI components to be portable to Salesforce Lightning, so that we don't have to rebuild from scratch.</div></td>
+            <td class="col-comp">
+              <div class="comp-list">
+                <div class="comp-screen">Architecture (all components)</div>
+                <div class="comp-chips">
+                  <span class="comp-chip">mockRules.ts</span>
+                  <span class="comp-chip partial">SLDS 2 — Phase 2</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-how"><span class="how-text">Business rules are isolated in mockRules.ts — a single file that maps 1:1 to a future API call. React component boundaries mirror LWC component boundaries. CSS uses custom properties (not inline styles), so theming is replaceable. County/tribal rules are in a configuration file, not hardcoded in component logic. No Salesforce-specific code exists in Phase 1.</span></td>
+            <td class="col-basis"><span class="badge badge-enhancement">Enhancement</span><span class="basis-note">Portability is a design constraint, not a feature — it shapes every architectural decision</span></td>
+            <td class="col-status"><span class="badge badge-outofscope">Out of Scope · Phase 2</span><span class="badge-note">SLDS 2 re-implementation planned for Phase 2 once flows are validated</span></td>
+            <td class="col-usage"><div class="usage-text">Not user-facing; reflected in codebase structure.<span class="clicks">Decision point for Phase 2 planning</span></div></td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ─────────────────────────────────────
+       TAB: ARCHITECTURE
+  ───────────────────────────────────────── -->
+  <div id="tab-arch" class="tab-panel" role="tabpanel" aria-labelledby="btn-arch">
+
+    <h2 class="section-heading">Architecture &amp; Screen Structure</h2>
+
+    <div class="callout">
+      The prototype is a <strong>single-page application</strong> — one screen, no routing. A staff user works
+      through the full intake-to-log workflow without navigating away. This matches the way intake
+      specialists currently work: one case at a time, linearly.
+    </div>
+
+    <div class="prose-section">
+      <h2>Screen layout</h2>
+      <p>
+        The screen is divided into two columns on desktop (stacked vertically on mobile). The left column
+        holds the intake form. The right column holds all assistant panels, stacked in the order a user
+        would engage with them during an intake session.
+      </p>
+      <div class="arch-flow">
+        <div class="arch-flow-step">Intake Form</div>
+        <div class="arch-flow-arrow">→</div>
+        <div class="arch-flow-step">Run Assistant</div>
+        <div class="arch-flow-arrow">→</div>
+        <div class="arch-flow-step">Review Suggestion</div>
+        <div class="arch-flow-arrow">→</div>
+        <div class="arch-flow-step">Accept / Override</div>
+        <div class="arch-flow-arrow">→</div>
+        <div class="arch-flow-step">Completeness Check</div>
+        <div class="arch-flow-arrow">→</div>
+        <div class="arch-flow-step">Logged</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="prose-section">
+        <h2>Components (UI)</h2>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="background:var(--mn-blue);color:#fff;">
+              <th style="text-align:left;padding:8px 12px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">File</th>
+              <th style="text-align:left;padding:8px 12px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;font-family:'Courier New',monospace;color:var(--mn-blue);font-size:12px;">Layout.tsx</td>
+              <td style="padding:8px 12px;">Header bar, skip link, two-column grid, ARIA landmarks</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;font-family:'Courier New',monospace;color:var(--mn-blue);font-size:12px;">IntakeForm.tsx</td>
+              <td style="padding:8px 12px;">Provider name, address, county, application type, program description, "Run Assistant" button</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;font-family:'Courier New',monospace;color:var(--mn-blue);font-size:12px;">AssistantPanel.tsx</td>
+              <td style="padding:8px 12px;">License type suggestion, routing suggestion, explanation, accept/override controls</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;font-family:'Courier New',monospace;color:var(--mn-blue);font-size:12px;">CompletenessPanel.tsx</td>
+              <td style="padding:8px 12px;">Required-field checklist, required-doc checklist, missing-item warnings, duplicate alert</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;font-family:'Courier New',monospace;color:var(--mn-blue);font-size:12px;">StaffChatPanel.tsx</td>
+              <td style="padding:8px 12px;">Chat input, suggested question chips, Q&amp;A thread with source references</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;font-family:'Courier New',monospace;color:var(--mn-blue);font-size:12px;">LogPanel.tsx</td>
+              <td style="padding:8px 12px;">Timestamped table of all assistant interactions (classification, routing, chat)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose-section">
+        <h2>Data &amp; logic files</h2>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="background:var(--mn-blue);color:#fff;">
+              <th style="text-align:left;padding:8px 12px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">File</th>
+              <th style="text-align:left;padding:8px 12px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;font-family:'Courier New',monospace;color:var(--mn-green-dark);font-size:12px;">mockRules.ts</td>
+              <td style="padding:8px 12px;">License type and routing heuristics. Replace with API calls in production.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;font-family:'Courier New',monospace;color:var(--mn-green-dark);font-size:12px;">mockIntakes.ts</td>
+              <td style="padding:8px 12px;">Existing provider list for duplicate detection</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;font-family:'Courier New',monospace;color:var(--mn-green-dark);font-size:12px;">mockCannedResponses.ts</td>
+              <td style="padding:8px 12px;">Keyword-matched Q&amp;A library with source references; disclaimer and fallback responses</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;font-family:'Courier New',monospace;color:var(--mn-green-dark);font-size:12px;">mockLogs.ts</td>
+              <td style="padding:8px 12px;">Initial empty log seed data</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;font-family:'Courier New',monospace;color:var(--mn-green-dark);font-size:12px;">src/types/index.ts</td>
+              <td style="padding:8px 12px;">Shared TypeScript types: IntakeData, InteractionLog, LicenseType, RoutingSuggestion</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="prose-section">
+      <h2>State management &amp; data flow</h2>
+      <p>
+        State is managed in <code>App.tsx</code> and passed down as props. There is no external state
+        library (no Redux, no Zustand) — the prototype is intentionally simple. The interaction log is
+        a shared array in App.tsx; both AssistantPanel and StaffChatPanel append entries to it via
+        an <code>onLogEntry</code> callback prop.
+      </p>
+      <div class="arch-grid">
+        <div class="arch-col">
+          <h4>Left column (input)</h4>
+          <ul>
+            <li>IntakeForm owns its field state locally</li>
+            <li>On "Run Assistant": form data is lifted to App.tsx</li>
+            <li>App.tsx passes current intake data to all right-column panels</li>
+          </ul>
+        </div>
+        <div class="arch-col">
+          <h4>Right column (output)</h4>
+          <ul>
+            <li>AssistantPanel receives intake data, returns confirmed license type + routing</li>
+            <li>CompletenessPanel receives intake data + confirmed license type</li>
+            <li>StaffChatPanel is independent; logs via <code>onLogEntry</code></li>
+            <li>LogPanel receives the shared log array; renders only</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="prose-section">
+      <h2>Accessibility standards</h2>
+      <p>
+        The prototype is built to <strong>WCAG 2.1 AA</strong> throughout. All form fields have associated
+        <code>&lt;label&gt;</code> elements. All interactive elements are keyboard-reachable via Tab.
+        Semantic HTML landmarks are used (<code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>,
+        <code>&lt;nav&gt;</code>). A "Skip to main content" link is present at the top of every page.
+        No information is conveyed by color alone. Focus indicators are visible on all focusable elements.
+        Minnesota brand colors are used only in combinations that meet AA contrast ratios.
+      </p>
+    </div>
+
+    <div class="prose-section">
+      <h2>Tech stack</h2>
+      <ul>
+        <li><strong>Framework:</strong> Vite + React with TypeScript (<code>--template react-ts</code>)</li>
+        <li><strong>Styling:</strong> Custom CSS using MN brand variables from <code>theme.css</code>; no component library in Phase 1</li>
+        <li><strong>Data:</strong> All mock — no external API calls, no authentication, no database</li>
+        <li><strong>Deployment:</strong> Vercel (build: <code>npm run build</code>, output: <code>dist/</code>)</li>
+        <li><strong>Future platform:</strong> Salesforce Lightning (SLDS 2 / LWC) — out of scope for Phase 1</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ─────────────────────────────────────
+       TAB: TESTING GUIDE
+  ───────────────────────────────────────── -->
+  <div id="tab-testing" class="tab-panel" role="tabpanel" aria-labelledby="btn-testing">
+
+    <h2 class="section-heading">End-to-End Testing Guide</h2>
+
+    <div class="callout green">
+      Each scenario below is self-contained — you can run them in any order. Refresh the page between
+      scenarios to reset session state.
+    </div>
+
+    <!-- ── Scenario 1 ── -->
+    <div class="prose-section">
+      <h2>Scenario 1 — Child Care Classification, Accept</h2>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px;">
+        <strong>Persona:</strong> Licensing Intake Specialist &nbsp;·&nbsp;
+        <strong>Jobs:</strong> J-1, J-2, J-3, J-7
+      </p>
+      <ol>
+        <li>In <strong>Provider Name</strong>, type <code>Bright Futures Child Care</code>.</li>
+        <li>In <strong>Street Address</strong>, type <code>200 Oak Street</code>.</li>
+        <li>In <strong>City</strong>, type <code>Minneapolis</code>.</li>
+        <li>In <strong>County</strong>, select <strong>Hennepin</strong>.</li>
+        <li>Leave <strong>Application Type</strong> as <em>New Application</em>.</li>
+        <li>In <strong>Program Description</strong>, type: <em>Family child care home providing care for infants and toddlers.</em></li>
+        <li>Click <strong>Run Assistant</strong>.</li>
+      </ol>
+      <h3>Expected results</h3>
+      <ul>
+        <li><strong>AssistantPanel</strong> shows suggested license type: <em>Child Care (DCYF)</em> with an explanation citing "child," "infants," or "toddlers" as matching terms.</li>
+        <li>Routing suggestion shows: <em>Child Care Licensing — DCYF, Hennepin County</em>.</li>
+        <li>Click <strong>Accept Suggestion</strong>.</li>
+        <li><strong>CompletenessPanel</strong> appears showing required fields (all present) and required documents (all unchecked = missing). Status badge reads "3 items missing — cannot mark ready."</li>
+        <li>Suggested next actions appear: "Request background study form," "Request floor plan," "Request first aid/CPR certificate."</li>
+        <li><strong>LogPanel</strong> gains two new entries: one Classification (Accepted) and one Routing (Accepted).</li>
+      </ul>
+    </div>
+
+    <!-- ── Scenario 2 ── -->
+    <div class="prose-section">
+      <h2>Scenario 2 — Adult Day Care Classification, Override</h2>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px;">
+        <strong>Persona:</strong> Licensing Intake Specialist &nbsp;·&nbsp;
+        <strong>Jobs:</strong> J-1, J-2, J-7
+      </p>
+      <ol>
+        <li>In <strong>Provider Name</strong>, type <code>Sunrise Day Program</code>.</li>
+        <li>In <strong>County</strong>, select <strong>Ramsey</strong>.</li>
+        <li>In <strong>Program Description</strong>, type: <em>Adult day services program for seniors with memory care needs.</em></li>
+        <li>Click <strong>Run Assistant</strong>.</li>
+        <li>Confirm the suggestion shows <em>Adult Day Care (DHS)</em>.</li>
+        <li>In the <strong>Override license type</strong> dropdown, select <em>Child Care (DCYF)</em>.</li>
+        <li>Click <strong>Override</strong>.</li>
+      </ol>
+      <h3>Expected results</h3>
+      <ul>
+        <li>AssistantPanel confirms <em>Child Care (DCYF)</em> as the staff-selected type, despite the assistant suggesting Adult Day Care.</li>
+        <li><strong>LogPanel</strong> shows Classification entry with <em>Overridden</em> badge and both the suggested type and the override type in the suggestion summary.</li>
+        <li>Click <strong>Change classification</strong> to return to the pending state and re-accept the original suggestion if desired.</li>
+      </ul>
+    </div>
+
+    <!-- ── Scenario 3 ── -->
+    <div class="prose-section">
+      <h2>Scenario 3 — Duplicate Provider Detection</h2>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px;">
+        <strong>Persona:</strong> Provider Enrollment / Credentialing Specialist &nbsp;·&nbsp;
+        <strong>Jobs:</strong> J-4
+      </p>
+      <ol>
+        <li>In <strong>Provider Name</strong>, type <code>Sunrise Child Care</code>.</li>
+        <li>In <strong>Street Address</strong>, type <code>123 Main St</code>.</li>
+        <li>In <strong>County</strong>, select <strong>Hennepin</strong>.</li>
+        <li>In <strong>Program Description</strong>, type: <em>Child care center serving school-age children.</em></li>
+        <li>Click <strong>Run Assistant</strong>, then click <strong>Accept Suggestion</strong>.</li>
+      </ol>
+      <h3>Expected results</h3>
+      <ul>
+        <li><strong>CompletenessPanel</strong> displays a yellow warning box: <em>"Potential duplicate detected. This may match Sunrise Child Care at 123 Main St, Hennepin County."</em></li>
+        <li>The warning has <code>role="alert"</code> — screen readers announce it immediately.</li>
+        <li>The application cannot be marked "Ready for review" until staff resolve the duplicate question.</li>
+      </ul>
+      <p><strong>Also try:</strong> Enter <code>Evergreen Adult Day Care</code> at <code>456 Oak Ave</code> — triggers the adult day care duplicate record.</p>
+    </div>
+
+    <!-- ── Scenario 4 ── -->
+    <div class="prose-section">
+      <h2>Scenario 4 — Completeness Check with Documents</h2>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px;">
+        <strong>Persona:</strong> Provider Enrollment / Credentialing Specialist &nbsp;·&nbsp;
+        <strong>Jobs:</strong> J-3
+      </p>
+      <ol>
+        <li>Repeat the Scenario 1 intake setup (Bright Futures Child Care, Hennepin, new family child care description).</li>
+        <li>Check <strong>Background study form</strong> and <strong>Floor plan</strong> in the Documents on File section.</li>
+        <li>Click <strong>Run Assistant</strong> → <strong>Accept Suggestion</strong>.</li>
+      </ol>
+      <h3>Expected results</h3>
+      <ul>
+        <li>CompletenessPanel shows Background study form (✓) and Floor plan (✓) as present.</li>
+        <li>First aid / CPR certificate remains missing (!).</li>
+        <li>Status badge reads "1 item missing."</li>
+        <li>Now also check <strong>First aid / CPR certificate</strong> — the completeness panel updates in real time as intake fields change.</li>
+        <li>With all three checked: status badge changes to <em>Ready for review</em> (green).</li>
+      </ul>
+    </div>
+
+    <!-- ── Scenario 5 ── -->
+    <div class="prose-section">
+      <h2>Scenario 5 — Staff Chat Panel, Known Question</h2>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px;">
+        <strong>Persona:</strong> All internal staff &nbsp;·&nbsp;
+        <strong>Jobs:</strong> J-5, J-6, J-7
+      </p>
+      <ol>
+        <li>In the <strong>Staff Assistant Chat</strong> panel, click the chip: <em>What are the requirements for a new family child care license?</em></li>
+      </ol>
+      <h3>Expected results</h3>
+      <ul>
+        <li>The question appears as a staff bubble (right-aligned, MN Blue background).</li>
+        <li>The assistant responds with the full requirements list (application, background study, home inspection, first aid/CPR, floor plan).</li>
+        <li>Source reference appears below the response: <em>Child Care Licensing Policy Manual, Section 3.2</em>.</li>
+        <li><strong>LogPanel</strong> gains a new Chat entry with the question as the input summary and the response ID (<code>childcare-new-requirements</code>) as the suggestion.</li>
+      </ul>
+      <p><strong>Also try typing:</strong> "How many children" → capacity limits response. "Background check" → background study response. "Who can I approve?" → disclaimer response (legal/eligibility keywords). "pizza" → fallback response.</p>
+    </div>
+
+    <!-- ── Scenario 6 ── -->
+    <div class="prose-section">
+      <h2>Scenario 6 — Keyboard-Only Navigation</h2>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px;">
+        <strong>Persona:</strong> Any staff user with accessibility needs &nbsp;·&nbsp;
+        <strong>Requirement:</strong> WCAG 2.1 AA keyboard access
+      </p>
+      <ol>
+        <li>Press <strong>Tab</strong> from the browser address bar — the first focus should land on the <strong>Skip to main content</strong> link. Press Enter to jump past the header.</li>
+        <li>Tab through all form fields in order: Provider Name → Street → City → County → Application Type → Program Description → document checkboxes → Run Assistant button.</li>
+        <li>Tab into the AssistantPanel controls: Accept Suggestion button, Override dropdown, Override button.</li>
+        <li>Tab into the chat panel: suggested question chips (each focusable), chat input, Send button.</li>
+        <li>Throughout: verify a visible focus indicator (green outline) is present on every focused element.</li>
+      </ol>
+      <h3>Expected results</h3>
+      <ul>
+        <li>Every interactive element is reachable by Tab alone — no mouse required.</li>
+        <li>Enter key submits chat input without clicking Send.</li>
+        <li>No focus traps (Tab always moves forward; Shift+Tab always moves back).</li>
+        <li>All form labels are read correctly by VoiceOver / NVDA when a field receives focus.</li>
+      </ul>
+    </div>
+
+    <!-- ── Quick reference table ── -->
+    <h2 class="section-heading">Quick Reference — Test Data</h2>
+    <div class="jtbd-table-wrap">
+      <table class="jtbd-table">
+        <thead>
+          <tr>
+            <th style="width:22%">Test input</th>
+            <th style="width:20%">Expected classification</th>
+            <th style="width:25%">Triggers duplicate?</th>
+            <th style="width:33%">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>"family child care home for infants"</td>
+            <td><span class="badge badge-live">Child Care (DCYF)</span></td>
+            <td>No</td>
+            <td>Matches: child, family, infants</td>
+          </tr>
+          <tr>
+            <td>"adult day services for seniors"</td>
+            <td><span class="badge badge-enhancement">Adult Day Care (DHS)</span></td>
+            <td>No</td>
+            <td>Matches: adult day, seniors</td>
+          </tr>
+          <tr>
+            <td>"Sunrise Child Care" + "123 Main St"</td>
+            <td><span class="badge badge-live">Child Care (DCYF)</span></td>
+            <td><strong>Yes — Hennepin</strong></td>
+            <td>Exact match in mockIntakes.ts</td>
+          </tr>
+          <tr>
+            <td>"Evergreen Adult Day Care" + "456 Oak Ave"</td>
+            <td><span class="badge badge-enhancement">Adult Day Care (DHS)</span></td>
+            <td><strong>Yes — Ramsey</strong></td>
+            <td>Exact match in mockIntakes.ts</td>
+          </tr>
+          <tr>
+            <td>"daycare for school age kids"</td>
+            <td><span class="badge badge-live">Child Care (DCYF)</span></td>
+            <td>No</td>
+            <td>Matches: daycare, kids</td>
+          </tr>
+          <tr>
+            <td>"memory care program for elderly"</td>
+            <td><span class="badge badge-enhancement">Adult Day Care (DHS)</span></td>
+            <td>No</td>
+            <td>Matches: memory care, elderly</td>
+          </tr>
+          <tr>
+            <td>"licensed program" (no keywords)</td>
+            <td><span class="badge badge-partial">Unknown — Manual Review</span></td>
+            <td>No</td>
+            <td>No keyword match; staff must classify manually</td>
+          </tr>
+          <tr>
+            <td>Chat: "who can I approve?"</td>
+            <td colspan="2"><em>Disclaimer response</em></td>
+            <td>Triggers eligibility/legal keyword guard</td>
+          </tr>
+          <tr>
+            <td>Chat: "renewal documents adult day"</td>
+            <td colspan="2"><em>Adult day care renewal response</em></td>
+            <td>Source: Adult Day Care Licensing Guidelines, Section 5.1</td>
+          </tr>
+          <tr>
+            <td>Chat: "how many children"</td>
+            <td colspan="2"><em>Capacity limits response</em></td>
+            <td>Source: Child Care Licensing Policy Manual, Section 6.2</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ─────────────────────────────────────
+       TAB: ROADMAP & OPEN QUESTIONS
+  ───────────────────────────────────────── -->
+  <div id="tab-roadmap" class="tab-panel" role="tabpanel" aria-labelledby="btn-roadmap">
+
+    <h2 class="section-heading">Next Steps &amp; Roadmap</h2>
+
+    <div class="callout green">
+      <strong>Phase 1 prototype build is complete.</strong> All five execution chunks have been built and verified.
+      The prototype runs locally at <code>localhost:5173</code> and passes a clean TypeScript + Vite production build.
+      Next step: push to GitHub and connect to Vercel for stakeholder review. See the Testing Guide tab for
+      end-to-end test scenarios.
+    </div>
+
+    <div class="roadmap-table-wrap">
+      <table class="roadmap-table">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:12px 16px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Phase</th>
+            <th style="text-align:left;padding:12px 16px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Description</th>
+            <th style="text-align:left;padding:12px 16px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Status</th>
+            <th style="text-align:left;padding:12px 16px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Chunk 1 — Scaffold</td>
+            <td>Vite + React setup, folder structure, theme.css with MN brand variables, dev server running</td>
+            <td><span class="badge badge-live">Live in Prototype</span></td>
+            <td>Dev server returns HTTP 200; production build passes tsc + vite build with 0 errors</td>
+          </tr>
+          <tr>
+            <td>Chunk 2 — Data layer</td>
+            <td>All mock data files and TypeScript types: mockRules.ts, mockIntakes.ts, mockCannedResponses.ts, mockLogs.ts, src/types/index.ts</td>
+            <td><span class="badge badge-live">Live in Prototype</span></td>
+            <td>All 87 MN counties included in the dropdown. 5 mock existing providers. 6 canned Q&amp;A entries + disclaimer + fallback.</td>
+          </tr>
+          <tr>
+            <td>Chunk 3 — Layout + Intake Form</td>
+            <td>Layout.tsx with ARIA landmarks, IntakeForm.tsx with all fields and "Run Assistant" button, wired to App.tsx</td>
+            <td><span class="badge badge-live">Live in Prototype</span></td>
+            <td>All fields labeled; keyboard-navigable; Run Assistant disabled until provider name + description are filled</td>
+          </tr>
+          <tr>
+            <td>Chunk 4 — Assistant + Completeness</td>
+            <td>AssistantPanel.tsx (classification + routing + accept/override), CompletenessPanel.tsx (checklist + duplicate detection)</td>
+            <td><span class="badge badge-live">Live in Prototype</span></td>
+            <td>Three-phase AssistantPanel (idle → pending → confirmed). Word-overlap duplicate matcher. Per-license-type required doc lists.</td>
+          </tr>
+          <tr>
+            <td>Chunk 5 — Chat + Log + final wiring</td>
+            <td>StaffChatPanel.tsx (chat thread + suggested chips), LogPanel.tsx (interaction table), full App.tsx state plumbing</td>
+            <td><span class="badge badge-live">Live in Prototype</span></td>
+            <td>Chat uses aria-live="polite". Log shows seed entries on load + all new entries in reverse-chronological order.</td>
+          </tr>
+          <tr>
+            <td>Deployment</td>
+            <td>Push to GitHub, connect to Vercel, verify build and end-to-end workflow</td>
+            <td><span class="badge badge-planned">Next Step</span></td>
+            <td>GitHub repo name and Vercel project name needed to proceed</td>
+          </tr>
+          <tr>
+            <td>Phase 2 — Salesforce</td>
+            <td>Re-implement UI in SLDS 2 / LWC; connect mockRules.ts to live Apigee APIs; embed in Salesforce case management</td>
+            <td><span class="badge badge-outofscope">Out of Scope · Future</span></td>
+            <td>Apigee API contracts; Salesforce org and sandbox access; SLDS 2 component library decision</td>
+          </tr>
+          <tr>
+            <td>Phase 3 — Provider-facing</td>
+            <td>Extend the assistant to external providers; guided self-service intake; public-facing portal</td>
+            <td><span class="badge badge-outofscope">Out of Scope · Future</span></td>
+            <td>Authentication strategy; provider identity management; accessibility for public audiences</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Open Questions -->
+    <section class="oq-section" aria-labelledby="oq-heading">
+      <h2 id="oq-heading" class="oq-title">Open Questions &amp; Blocked Decisions</h2>
+      <p class="oq-subtitle">
+        These items do not block the Phase 1 prototype build, but they must be resolved before the
+        prototype can be used for a real pilot or before production development begins.
+      </p>
+
+      <div class="oq-table-wrap">
+        <table class="oq-table">
+          <thead>
+            <tr>
+              <th class="oq-col-ref">Ref</th>
+              <th class="oq-col-q">Question</th>
+              <th class="oq-col-impact">Impact if Unanswered</th>
+              <th class="oq-col-owner">Owner</th>
+              <th class="oq-col-jtbd">Related Job</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="oq-tag">OQ-1</span></td>
+              <td>Who is the demo audience and what is the target demo date? Is this an internal review, an executive demo, or a user research session?</td>
+              <td>Scope creep risk if the audience is broader than internal staff. A user research session requires a structured script and a consent process. An executive demo may require a more polished UI than the current plan provides.</td>
+              <td>Program Manager</td>
+              <td>All</td>
+            </tr>
+            <tr>
+              <td><span class="oq-tag">OQ-2</span></td>
+              <td>How many counties should appear in the County dropdown for the prototype? Should tribal nations be included as routing destinations in Phase 1?</td>
+              <td>The county list drives routing suggestions in mockRules.ts. Too few counties makes the demo feel artificial; too many adds noise without value. Tribal routing is a non-trivial addition that may require separate logic.</td>
+              <td>Intake Specialist lead</td>
+              <td>J-2</td>
+            </tr>
+            <tr>
+              <td><span class="oq-tag">OQ-3</span></td>
+              <td>Are there existing Figma files, a component library, or MN.gov design system tokens we should align with? Or are we setting a new pattern from scratch?</td>
+              <td>If a design system exists, the prototype should use its tokens and patterns — otherwise we create debt. If we're setting a new pattern, the design decisions made here will become the reference for Phase 2.</td>
+              <td>UX / Design lead</td>
+              <td>All</td>
+            </tr>
+            <tr>
+              <td><span class="oq-tag">OQ-4</span></td>
+              <td>What is the functional-requirements.md content? The file exists but is empty. Should it be drafted from the implementation plan, or will the team supply content?</td>
+              <td>Without agreed functional requirements, the prototype may address the wrong level of detail. The CLAUDE.md file flags this as an open question. Resolving it clarifies scope for both Phase 1 and Phase 2.</td>
+              <td>Product Manager</td>
+              <td>All</td>
+            </tr>
+            <tr>
+              <td><span class="oq-tag">OQ-5</span></td>
+              <td>For Phase 2 Salesforce integration: which Apigee APIs are available for license type lookup and routing? Are they documented and accessible in a non-production environment for prototyping?</td>
+              <td>The production migration plan cannot be scoped without knowing which APIs exist. If APIs are incomplete or undocumented, Phase 2 may require custom API development, which adds significant time and cost.</td>
+              <td>Integration / API team</td>
+              <td>J-8</td>
+            </tr>
+            <tr>
+              <td><span class="oq-tag">OQ-6</span></td>
+              <td>What is the long-term hosting and access model for the production tool? Salesforce-embedded, standalone MN.gov subdomain, or hybrid? This affects authentication strategy and URL structure.</td>
+              <td>Phase 1 has no authentication (single staff user assumed). Phase 2 requires a decision before any login flow can be designed. A Salesforce-embedded tool uses SSO; a standalone tool requires a separate identity provider.</td>
+              <td>IT / Architecture lead</td>
+              <td>J-8</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Assumptions -->
+    <section style="margin-top: 40px;">
+      <h2 class="oq-title">Assumptions</h2>
+      <p class="oq-subtitle">These assumptions underpin the current design and build plan. If any prove false, scope or approach may need to change.</p>
+      <div class="prose-section">
+        <ul>
+          <li><strong>Single staff user.</strong> The prototype assumes a single, logged-in staff user. Multi-user scenarios, role-based access, and permission levels are not addressed in Phase 1.</li>
+          <li><strong>Two license types only.</strong> Child care and adult day care licensing are the scope for Phase 1. Other program areas (e.g., foster care, adult foster care) are explicitly out of scope.</li>
+          <li><strong>Mocked AI behavior is sufficient for prototype validation.</strong> Keyword-based heuristics are sufficient to demonstrate the classification and routing flow. A real LLM or ML model is not required to validate the workflow with staff users.</li>
+          <li><strong>All data is fictitious.</strong> No real provider names, addresses, or case data appear in the prototype. Mock data is representative of the shape and volume of real data, but not real data itself.</li>
+          <li><strong>Session-only logging.</strong> The interaction log resets on page refresh. Persistent logging across sessions requires a backend — out of scope for Phase 1.</li>
+          <li><strong>Desktop-first layout.</strong> The primary use case is a desktop workstation in a state office. Mobile layout is supported (responsive CSS) but is not the primary target for Phase 1.</li>
+          <li><strong>React + Vite is acceptable for the prototype.</strong> The production platform will be Salesforce Lightning. The prototype uses React + Vite as a faster prototyping environment, with components designed to port to LWC.</li>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+
+</main>
+
+<!-- ════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════ -->
+<footer class="page-footer">
+  <span>MN Licensing Assistant Prototype &nbsp;·&nbsp; Stakeholder Overview &nbsp;·&nbsp; Updated August 11, 2026</span>
+  <span>Phase 1 build complete — all 5 chunks shipped. Deployment to Vercel is the next step. &nbsp;<a href="#main-content">Back to top ↑</a></span>
+</footer>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.tab-panel').forEach(function(p) {
+      p.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-btn').forEach(function(b) {
+      b.classList.remove('active');
+      b.setAttribute('aria-selected', 'false');
+    });
+    document.getElementById('tab-' + id).classList.add('active');
+    var order = ['overview', 'personas', 'jtbd', 'arch', 'testing', 'roadmap'];
+    var idx = order.indexOf(id);
+    var btns = document.querySelectorAll('.tab-btn');
+    btns[idx].classList.add('active');
+    btns[idx].setAttribute('aria-selected', 'true');
+  }
+</script>
+
+</body>
+</html>

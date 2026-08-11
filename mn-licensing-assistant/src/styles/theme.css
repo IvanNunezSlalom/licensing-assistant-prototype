@@ -1,0 +1,203 @@
+:root {
+  /* Primary brand */
+  --mn-blue: #003865;
+  --mn-blue-dark: #002548;
+  --mn-blue-light: #e6edf4;
+  --mn-green: #78BE21;
+  --mn-green-dark: #5a9118;
+  --mn-green-light: #eef7e0;
+
+  /* Accent palette */
+  --accent-teal: #008EAA;
+  --accent-green: #0D5257;
+  --accent-orange: #8D3F2B;
+  --accent-purple: #5D295F;
+  --accent-bluegray: #A4BCC2;
+  --accent-cream: #F5E1A4;
+  --accent-skyblue: #9BCBEB;
+  --accent-gold: #FFC845;
+
+  /* Neutrals */
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --text-on-blue: #ffffff;
+  --text-on-green: #1a1a1a;
+  --border: #d0d7de;
+  --surface: #ffffff;
+  --surface-alt: #f6f8fa;
+
+  /* Spacing */
+  --sp-xs: 4px;
+  --sp-sm: 8px;
+  --sp-md: 16px;
+  --sp-lg: 24px;
+  --sp-xl: 32px;
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+
+  /* Borders */
+  --radius: 4px;
+  --radius-lg: 8px;
+}
+
+/* Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  background: var(--surface-alt);
+  line-height: 1.5;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: -999px;
+  left: 0;
+  padding: var(--sp-sm) var(--sp-md);
+  background: var(--mn-blue);
+  color: var(--text-on-blue);
+  font-weight: 600;
+  text-decoration: none;
+  z-index: 9999;
+}
+.skip-link:focus {
+  top: 0;
+}
+
+/* Focus visible */
+:focus-visible {
+  outline: 3px solid var(--mn-green);
+  outline-offset: 2px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-xs);
+  padding: var(--sp-sm) var(--sp-md);
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  line-height: 1.4;
+}
+.btn-primary {
+  background: var(--mn-blue);
+  color: var(--text-on-blue);
+}
+.btn-primary:hover {
+  background: var(--mn-blue-dark);
+}
+.btn-secondary {
+  background: var(--mn-green);
+  color: var(--text-on-green);
+}
+.btn-secondary:hover {
+  background: var(--mn-green-dark);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--mn-blue);
+  border: 1px solid var(--mn-blue);
+}
+.btn-ghost:hover {
+  background: var(--mn-blue-light);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Form elements */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-xs);
+  margin-bottom: var(--sp-md);
+}
+.form-label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.form-input,
+.form-select,
+.form-textarea {
+  padding: var(--sp-sm) var(--sp-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  background: var(--surface);
+  width: 100%;
+}
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: 3px solid var(--mn-green);
+  outline-offset: 0;
+  border-color: var(--mn-blue);
+}
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Panel card */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-lg);
+  margin-bottom: var(--sp-md);
+}
+.panel-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--mn-blue);
+  margin: 0 0 var(--sp-md) 0;
+  padding-bottom: var(--sp-sm);
+  border-bottom: 2px solid var(--mn-blue-light);
+}
+
+/* Status badges */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+.badge-success {
+  background: var(--mn-green-light);
+  color: var(--mn-green-dark);
+}
+.badge-warning {
+  background: #fff3cd;
+  color: #7a5100;
+}
+.badge-error {
+  background: #fce8e8;
+  color: #8b0000;
+}
+.badge-info {
+  background: var(--mn-blue-light);
+  color: var(--mn-blue);
+}
