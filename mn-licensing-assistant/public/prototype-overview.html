@@ -1562,34 +1562,20 @@
             </tr>
             <tr>
               <td><span class="oq-tag">OQ-2</span></td>
-              <td>How many counties should appear in the County dropdown for the prototype? Should tribal nations be included as routing destinations in Phase 1?</td>
-              <td>The county list drives routing suggestions in mockRules.ts. Too few counties makes the demo feel artificial; too many adds noise without value. Tribal routing is a non-trivial addition that may require separate logic.</td>
-              <td>Intake Specialist lead</td>
-              <td>J-2</td>
-            </tr>
-            <tr>
-              <td><span class="oq-tag">OQ-3</span></td>
               <td>Are there existing Figma files, a component library, or MN.gov design system tokens we should align with? Or are we setting a new pattern from scratch?</td>
               <td>If a design system exists, the prototype should use its tokens and patterns — otherwise we create debt. If we're setting a new pattern, the design decisions made here will become the reference for Phase 2.</td>
               <td>UX / Design lead</td>
               <td>All</td>
             </tr>
             <tr>
-              <td><span class="oq-tag">OQ-4</span></td>
-              <td>What is the functional-requirements.md content? The file exists but is empty. Should it be drafted from the implementation plan, or will the team supply content?</td>
-              <td>Without agreed functional requirements, the prototype may address the wrong level of detail. The CLAUDE.md file flags this as an open question. Resolving it clarifies scope for both Phase 1 and Phase 2.</td>
-              <td>Product Manager</td>
-              <td>All</td>
-            </tr>
-            <tr>
-              <td><span class="oq-tag">OQ-5</span></td>
+              <td><span class="oq-tag">OQ-3</span></td>
               <td>For Phase 2 Salesforce integration: which Apigee APIs are available for license type lookup and routing? Are they documented and accessible in a non-production environment for prototyping?</td>
               <td>The production migration plan cannot be scoped without knowing which APIs exist. If APIs are incomplete or undocumented, Phase 2 may require custom API development, which adds significant time and cost.</td>
               <td>Integration / API team</td>
               <td>J-8</td>
             </tr>
             <tr>
-              <td><span class="oq-tag">OQ-6</span></td>
+              <td><span class="oq-tag">OQ-4</span></td>
               <td>What is the long-term hosting and access model for the production tool? Salesforce-embedded, standalone MN.gov subdomain, or hybrid? This affects authentication strategy and URL structure.</td>
               <td>Phase 1 has no authentication (single staff user assumed). Phase 2 requires a decision before any login flow can be designed. A Salesforce-embedded tool uses SSO; a standalone tool requires a separate identity provider.</td>
               <td>IT / Architecture lead</td>
@@ -1626,7 +1612,7 @@
 ════════════════════════════════════════ -->
 <footer class="page-footer">
   <span>MN Licensing Assistant Prototype &nbsp;·&nbsp; Stakeholder Overview &nbsp;·&nbsp; Updated August 11, 2026</span>
-  <span>Phase 1 build complete — all 5 chunks shipped. Deployment to Vercel is the next step. &nbsp;<a href="#main-content">Back to top ↑</a></span>
+  <span><a href="#main-content">Back to top ↑</a></span>
 </footer>
 
 <script>

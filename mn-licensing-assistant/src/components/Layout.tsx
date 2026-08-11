@@ -20,13 +20,21 @@ export default function Layout({ leftColumn, rightColumn }: LayoutProps) {
         }}
       >
         <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--sp-md)' }}>
-          <div>
-            <h1 style={{ margin: 0, fontSize: 'var(--font-size-xl)', fontWeight: 700 }}>
-              MN Licensing Assistant — Intake &amp; Triage
-            </h1>
-            <p style={{ margin: '4px 0 0', fontSize: 'var(--font-size-sm)', opacity: 0.85 }}>
-              Child Care &amp; Adult Day Care Licensing &nbsp;·&nbsp; Phase 1 Prototype &nbsp;·&nbsp; Internal Staff Only
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-lg)' }}>
+            <img
+              src="/header-mn-logo_tcm1077-352403.png"
+              alt="State of Minnesota"
+              style={{ height: 40, flexShrink: 0 }}
+            />
+            <div style={{ width: 1, height: 40, background: 'rgba(255,255,255,0.3)' }} aria-hidden="true" />
+            <div>
+              <h1 style={{ margin: 0, fontSize: 'var(--font-size-xl)', fontWeight: 700 }}>
+                Licensing Assistant — Intake &amp; Triage
+              </h1>
+              <p style={{ margin: '4px 0 0', fontSize: 'var(--font-size-sm)', opacity: 0.85 }}>
+                Child Care &amp; Adult Day Care Licensing &nbsp;·&nbsp; Phase 1 Prototype &nbsp;·&nbsp; Internal Staff Only
+              </p>
+            </div>
           </div>
           <a
             href="/prototype-overview.html"
