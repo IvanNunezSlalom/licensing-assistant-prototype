@@ -627,6 +627,113 @@
       outline-offset: 2px;
       border-radius: 2px;
     }
+
+    /* ── Journey tab ── */
+    .journey-actor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 900px) { .journey-actor-grid { grid-template-columns: 1fr; } }
+
+    .actor-lane {
+      background: var(--surface-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .actor-lane-header {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .actor-lane-header h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--mn-blue);
+      margin-bottom: 4px;
+    }
+    .actor-lane.lane-provider { border-top: 4px solid var(--muted); }
+    .actor-lane.lane-system   { border-top: 4px solid #008EAA; }
+    .actor-lane.lane-staff    { border-top: 4px solid var(--mn-green); }
+
+    .journey-steps { padding: 12px 0 8px; }
+    .journey-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 16px;
+      border-left: 3px solid transparent;
+      transition: background 0.1s;
+    }
+    .journey-step:hover { background: #f8f8f8; }
+    .journey-step.step-in-scope {
+      border-left-color: var(--mn-green);
+      background: var(--mn-green-light);
+    }
+    .journey-step.step-in-scope:hover { background: #e0f0c8; }
+    .journey-step.step-out-scope {
+      opacity: 0.65;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--mn-blue);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+    .step-in-scope .step-num { background: var(--mn-green-dark); }
+    .step-out-scope .step-num { background: var(--muted); }
+    .step-text { font-size: 13px; color: #333; line-height: 1.5; }
+    .step-text strong { color: var(--mn-blue); display: block; font-size: 12.5px; margin-bottom: 1px; }
+    .step-in-scope .step-text strong { color: var(--mn-green-dark); }
+
+    .scope-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .scope-badge.in-scope {
+      background: var(--mn-green-light);
+      color: var(--mn-green-dark);
+      border: 1px solid #a8d87a;
+    }
+    .scope-badge.out-scope {
+      background: var(--planned-bg);
+      color: var(--planned-text);
+      border: 1px solid var(--border);
+    }
+    .scope-badge.simulated {
+      background: var(--mn-blue-light);
+      color: var(--mn-blue);
+      border: 1px solid #7fb3d8;
+    }
+
+    .journey-gap-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    .journey-gap-table thead tr { background: var(--mn-blue); color: #fff; }
+    .journey-gap-table thead th {
+      text-align: left; padding: 11px 14px;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .journey-gap-table tbody tr { border-bottom: 1px solid var(--border); }
+    .journey-gap-table tbody tr:last-child { border-bottom: none; }
+    .journey-gap-table tbody tr:hover { background: #f0f5ea; }
+    .journey-gap-table td { padding: 11px 14px; vertical-align: top; font-size: 13px; color: #333; line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -651,6 +758,7 @@
 ════════════════════════════════════════ -->
 <nav class="tab-nav" role="tablist" aria-label="Section navigation">
   <button class="tab-btn active" role="tab" aria-selected="true"  aria-controls="tab-overview"   id="btn-overview"   onclick="showTab('overview')" >Overview</button>
+  <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-journey"    id="btn-journey"    onclick="showTab('journey')"  >Journey</button>
   <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-personas"   id="btn-personas"   onclick="showTab('personas')" >Personas <span class="badge-count">4</span></button>
   <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-jtbd"       id="btn-jtbd"       onclick="showTab('jtbd')"     >Jobs to Be Done <span class="badge-count">8</span></button>
   <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-arch"       id="btn-arch"       onclick="showTab('arch')"     >Architecture</button>
@@ -770,6 +878,198 @@
         explanation ("why"). Staff can accept or override any recommendation. This design principle is
         essential for building trust with providers and staff who may be skeptical of AI-driven tools.
       </p>
+    </div>
+
+  </div>
+
+  <!-- ─────────────────────────────────────
+       TAB: JOURNEY
+  ───────────────────────────────────────── -->
+  <div id="tab-journey" class="tab-panel" role="tabpanel" aria-labelledby="btn-journey">
+
+    <h2 class="section-heading">End-to-End Journey</h2>
+
+    <div class="callout">
+      This tab shows the <strong>full journey</strong> from a provider submitting a licensing application to a staff agent reviewing it.
+      The Phase 1 prototype covers only the staff-facing end of this journey
+      (<strong>steps 9–12</strong>). Steps 1–8 represent the future-state system that will eventually trigger staff review automatically.
+    </div>
+
+    <div class="prose-section">
+      <h2>Today's as-is state</h2>
+      <p>
+        There is no unified submission entry point today. Applications arrive via
+        <strong>paper, email, fax, and fragmented county portals</strong>. A Licensing Intake Specialist
+        receives a physical or digital document and <strong>manually keys the data</strong> into whatever
+        system is available — then decides classification and routing from memory or printed checklists.
+      </p>
+      <p>
+        The Phase 1 prototype <strong>simulates this exactly</strong>: staff enter data into the intake form
+        and click "Run Assistant" to trigger classification. In the future state, that trigger fires
+        automatically when a provider submits through the provider portal.
+      </p>
+    </div>
+
+    <h2 class="section-heading">Full Future-State Journey</h2>
+
+    <div class="journey-actor-grid" role="list" aria-label="Journey steps by actor">
+
+      <!-- ── Lane 1: Provider ── -->
+      <div class="actor-lane lane-provider" role="listitem">
+        <div class="actor-lane-header">
+          <h3>Provider / Applicant</h3>
+          <span class="scope-badge out-scope">Phase 3 · External</span>
+        </div>
+        <div class="journey-steps">
+          <div class="journey-step step-out-scope">
+            <div class="step-num" aria-label="Step 1">1</div>
+            <div class="step-text">
+              <strong>Arrives at provider-facing portal</strong>
+              Guided questions help the provider identify which license type and requirements apply to them.
+            </div>
+          </div>
+          <div class="journey-step step-out-scope">
+            <div class="step-num" aria-label="Step 2">2</div>
+            <div class="step-text">
+              <strong>Fills out structured application</strong>
+              Provider name, address, program description, county, and application type entered in a guided form.
+            </div>
+          </div>
+          <div class="journey-step step-out-scope">
+            <div class="step-num" aria-label="Step 3">3</div>
+            <div class="step-text">
+              <strong>Uploads required documents</strong>
+              Background study form, floor plan, proof of insurance — checklist surfaced inline.
+            </div>
+          </div>
+          <div class="journey-step step-out-scope">
+            <div class="step-num" aria-label="Step 4">4</div>
+            <div class="step-text">
+              <strong>Submits application</strong>
+              Submission event triggers case/record creation via Apigee or custom API into the case management system.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Lane 2: System / AI ── -->
+      <div class="actor-lane lane-system" role="listitem">
+        <div class="actor-lane-header">
+          <h3>System / AI Layer</h3>
+          <span class="scope-badge simulated">Simulated in Prototype</span>
+        </div>
+        <div class="journey-steps">
+          <div class="journey-step step-out-scope">
+            <div class="step-num" aria-label="Step 5">5</div>
+            <div class="step-text">
+              <strong>Auto-classification on submit</strong>
+              On submission, the AI layer runs license type classification against the program description — no staff action needed.
+            </div>
+          </div>
+          <div class="journey-step step-out-scope">
+            <div class="step-num" aria-label="Step 6">6</div>
+            <div class="step-text">
+              <strong>Routes to correct queue</strong>
+              Case is assigned to Child Care Licensing — DCYF or Adult Day Care Licensing — DHS based on classification result and county.
+            </div>
+          </div>
+          <div class="journey-step step-out-scope">
+            <div class="step-num" aria-label="Step 7">7</div>
+            <div class="step-text">
+              <strong>Completeness and duplicate checks</strong>
+              Required fields and documents are checked; potential duplicate providers flagged before the case reaches staff.
+            </div>
+          </div>
+          <div class="journey-step step-out-scope">
+            <div class="step-num" aria-label="Step 8">8</div>
+            <div class="step-text">
+              <strong>Case created with pre-populated results</strong>
+              Classification, routing suggestion, completeness status, and any flags are attached to the case record.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Lane 3: Staff ── -->
+      <div class="actor-lane lane-staff" role="listitem">
+        <div class="actor-lane-header">
+          <h3>Licensing Intake Specialist</h3>
+          <span class="scope-badge in-scope">Live in Prototype</span>
+        </div>
+        <div class="journey-steps">
+          <div class="journey-step step-in-scope">
+            <div class="step-num" aria-label="Step 9">9</div>
+            <div class="step-text">
+              <strong>Receives queue notification</strong>
+              Staff sees a new case assignment in their queue or dashboard. In the prototype, this is simulated by staff entering data and clicking "Run Assistant."
+            </div>
+          </div>
+          <div class="journey-step step-in-scope">
+            <div class="step-num" aria-label="Step 10">10</div>
+            <div class="step-text">
+              <strong>Reviews AI classification suggestion</strong>
+              The assistant has pre-suggested a license type (child care or adult day care) with an explanation. Staff reads the suggestion and the reasoning.
+            </div>
+          </div>
+          <div class="journey-step step-in-scope">
+            <div class="step-num" aria-label="Step 11">11</div>
+            <div class="step-text">
+              <strong>Accepts or overrides the suggestion</strong>
+              Staff confirms the classification and routing, or overrides with their own judgment. Either decision is logged.
+            </div>
+          </div>
+          <div class="journey-step step-in-scope">
+            <div class="step-num" aria-label="Step 12">12</div>
+            <div class="step-text">
+              <strong>Reviews completeness and moves forward</strong>
+              Staff sees which required documents are present or missing, resolves any duplicate flag, and either marks the application ready for review or requests missing items from the provider.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout green">
+      <strong>The key handoff point:</strong> In production, the trigger for staff review (step 9) is an automatic
+      event fired by a provider's form submission. In the Phase 1 prototype, that trigger is the
+      <strong>"Run Assistant" button</strong> — staff manually enter the data and fire the assistant themselves.
+      This is intentional: Phase 1 validates the staff-facing workflow before building the provider-facing intake.
+    </div>
+
+    <h2 class="section-heading">Prototype Scope Summary</h2>
+
+    <div class="jtbd-table-wrap">
+      <table class="journey-gap-table">
+        <thead>
+          <tr>
+            <th style="width:80px;">Steps</th>
+            <th style="width:22%;">Actor</th>
+            <th style="width:28%;">What Happens</th>
+            <th>Status in Phase 1 Prototype</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1–4</td>
+            <td><strong>Provider</strong></td>
+            <td>Guided portal, form fill, document upload, submission</td>
+            <td><span class="badge badge-outofscope">Out of Scope</span> — Phase 3 (provider-facing portal). Content and flows are being defined now so staff feedback can shape the future provider experience.</td>
+          </tr>
+          <tr>
+            <td>5–8</td>
+            <td><strong>System / AI Layer</strong></td>
+            <td>Auto-classification, routing, completeness check, case creation</td>
+            <td><span class="badge badge-partial">Simulated</span> — The "Run Assistant" button manually triggers the logic that will eventually fire automatically on submission. Mock rule files (<code>mockRules.ts</code>, <code>mockIntakes.ts</code>) replace live Apigee API calls.</td>
+          </tr>
+          <tr>
+            <td>9–12</td>
+            <td><strong>Staff / Intake Specialist</strong></td>
+            <td>Review suggestion, accept/override, completeness check, forward case</td>
+            <td><span class="badge badge-live">Live in Prototype</span> — Fully implemented. This is the primary scope of Phase 1. See the Testing Guide tab for step-by-step scenarios.</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
   </div>
@@ -1639,7 +1939,7 @@
       b.setAttribute('aria-selected', 'false');
     });
     document.getElementById('tab-' + id).classList.add('active');
-    var order = ['overview', 'personas', 'jtbd', 'arch', 'testing', 'roadmap'];
+    var order = ['overview', 'journey', 'personas', 'jtbd', 'arch', 'testing', 'roadmap'];
     var idx = order.indexOf(id);
     var btns = document.querySelectorAll('.tab-btn');
     btns[idx].classList.add('active');
